@@ -212,7 +212,7 @@ export default function WeatherApp() {
               placeholder="Search for a city..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="!glass border-0"
+              className="!bg-background border-0"
             />
             <Button type="submit" variant="secondary">
               <Search className="h-4 w-4" />
