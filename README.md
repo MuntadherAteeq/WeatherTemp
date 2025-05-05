@@ -37,7 +37,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 # TODO :
 
-- [ ] create a search List with flags of each available countries.
+- [x] create a search List with flags of each available countries.
 - [ ] Add settings button beside search button to change (f/c , 12/24 , km/mi ).
 - [ ] make the current location of the user is the default weather location.
 - [ ] Delete Refresh Button.
