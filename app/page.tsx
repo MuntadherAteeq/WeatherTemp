@@ -12,6 +12,7 @@ import {
   Sunrise,
   Sunset,
   Loader2,
+  RefreshCcw,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 import useSWR from "swr";
 import Image from "next/image";
 import { useTheme } from "next-themes";
+import { CityCombobox } from "@/components/city-combobox";
 
 // Weather fetcher function
 const fetcher = (url: string) =>
@@ -99,9 +101,10 @@ export default function WeatherApp() {
   const [city, setCity] = useState("London");
   const [searchQuery, setSearchQuery] = useState("");
   const [isDay, setIsDay] = useState(true);
-  const theme = useTheme();
 
-  theme.setTheme("dark");
+  useEffect(() => {
+    handleSearch(null);
+  }, [searchQuery]);
 
   // Fetch current weather data
   const {
@@ -131,8 +134,8 @@ export default function WeatherApp() {
   }, [weather]);
 
   // Handle search
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (e: React.FormEvent | null) => {
+    if (e) e.preventDefault();
     if (searchQuery.trim()) {
       setCity(searchQuery);
       setSearchQuery("");
@@ -179,7 +182,10 @@ export default function WeatherApp() {
                 <Input
                   placeholder="Enter city name"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={
+                    (e) => console.log(e)
+                    // setSearchQuery(e.target.value)
+                  }
                   className="flex-1"
                 />
                 <Button type="submit">Search</Button>
@@ -196,7 +202,7 @@ export default function WeatherApp() {
         "min-h-screen transition-colors duration-700 ease-in-out p-4 flex flex-col items-center",
         weather
           ? getBackgroundColor(weather.weather[0].main, isDay)
-          : "bg-surface"
+          : "bg-background"
       )}
     >
       <div className="w-full max-w-3xl mx-auto">
@@ -208,16 +214,12 @@ export default function WeatherApp() {
           className="mb-6"
         >
           <form onSubmit={handleSearch} className="flex gap-2">
-            <Input
+            <CityCombobox
               placeholder="Search for a city..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={setSearchQuery}
               className="!bg-background border-0"
             />
-            <Button type="submit" variant="secondary">
-              <Search className="h-4 w-4" />
-              <span className="sr-only">Search</span>
-            </Button>
           </form>
         </motion.div>
 
@@ -230,7 +232,10 @@ export default function WeatherApp() {
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.5 }}
           >
-            <Card className="bg-background backdrop-blur-sm border-0 shadow-lg overflow-hidden">
+            <Card
+              // className=" !bg-gray-900 !bg-clip-padding !backdrop-filter !backdrop-blur-md !bg-opacity-10 !border border-gray-100"
+              className="bg-background backdrop-blur-sm border-0 shadow-lg overflow-hidden"
+            >
               <CardContent className="p-6">
                 {isLoading ? (
                   <div className="space-y-4">
@@ -444,6 +449,7 @@ export default function WeatherApp() {
             {isLoading ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : null}
+            <RefreshCcw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
         </motion.div>

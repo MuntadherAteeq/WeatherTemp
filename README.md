@@ -34,3 +34,16 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+# TODO :
+
+- [ ] create a search List with flags of each available countries.
+- [ ] Add settings button beside search button to change (f/c , 12/24 , km/mi ).
+- [ ] make the current location of the user is the default weather location.
+- [ ] Delete Refresh Button.
+- [ ] Make the background of the app as glass effect
+
+## Note:
+
+- From F to c (32°F − 32) × 5/9 = 0°C
+- To convert kilometres per hour to miles per hour, multiply the speed in km/h by 0.621371. This factor is derived from the exact equivalence of one mile to 1.60934 kilometres. Using the formula that we have above, we can determine that 100 kph is equal to 62.14 mph.
