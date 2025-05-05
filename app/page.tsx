@@ -13,6 +13,7 @@ import {
   Sunset,
   Loader2,
   RefreshCcw,
+  Settings,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import useSWR from "swr";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { CityCombobox } from "@/components/city-combobox";
+import { SettingsDropdown } from "@/components/settings-dropdown";
 
 // Weather fetcher function
 const fetcher = (url: string) =>
@@ -214,8 +216,9 @@ export default function WeatherApp() {
               placeholder="Search for a city..."
               value={searchQuery}
               onChange={setSearchQuery}
-              className="!bg-background border-0"
+              className="!bg-background flex-1"
             />
+            <SettingsDropdown />
           </form>
         </motion.div>
 
