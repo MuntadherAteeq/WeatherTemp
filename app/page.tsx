@@ -220,6 +220,32 @@ export default function WeatherApp() {
                 onChange={setSearchQuery}
                 className="!bg-background flex-1"
               />
+              {/* Refresh Button */}
+              <motion.div
+                className="flex justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    mutate();
+                    const icon = document.getElementById("refresh-icon");
+                    if (icon) {
+                      icon.style.transition = "transform 0.5s ease";
+                      icon.style.transform = "rotate(360deg)";
+                      setTimeout(() => {
+                        icon.style.transform = "rotate(0deg)";
+                      }, 500);
+                    }
+                  }}
+                  className="!bg-background hover:!bg-muted"
+                  disabled={isLoading}
+                >
+                  {isLoading ? <Loader2 className="animate-spin" /> : null}
+                  <RefreshCcw id="refresh-icon" className="size-5" />
+                </Button>
+              </motion.div>
               <SettingsDropdown />
             </form>
           </motion.div>
@@ -436,27 +462,6 @@ export default function WeatherApp() {
               </Card>
             </motion.div>
           </AnimatePresence>
-
-          {/* Refresh Button */}
-          <motion.div
-            className="mt-6 flex justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            <Button
-              variant="outline"
-              onClick={() => mutate()}
-              className="!bg-background hover:bg-muted"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : null}
-              <RefreshCcw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
-          </motion.div>
         </div>
       </div>
     </SettingsProvider>
