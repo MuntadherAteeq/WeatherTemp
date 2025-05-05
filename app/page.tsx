@@ -15,17 +15,15 @@ import {
   RefreshCcw,
   Settings,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { CityCombobox } from "@/components/city-combobox";
 import { SettingsDropdown } from "@/components/settings-dropdown";
-import { SettingsProvider } from "@/hooks/use-settings";
+import { SettingsProvider, useSettings } from "@/hooks/use-settings";
 
 // Weather fetcher function
 const fetcher = (url: string) =>
@@ -100,10 +98,55 @@ const getWeatherIcon = (condition: string) => {
   }
 };
 
-export default function WeatherApp() {
+// Get the temperature unit based on the user's settings
+const getTempUnit = (temp: number, unit: "c" | "f") => {
+  if (unit === "c") {
+    return Math.round(temp) + " °C";
+  } else {
+    return Math.round((temp * 9) / 5 + 32) + " °F";
+  }
+};
+// Get the wind speed unit based on the user's settings
+const getWindUnit = (speed: number, unit: "kph" | "mph" | "ms") => {
+  if (unit === "kph") {
+    return Math.round(speed * 3.6) + " km/h";
+  } else if (unit === "mph") {
+    return Math.round(speed * 2.23694) + " mph";
+  } else {
+    return Math.round(speed) + " m/s";
+  }
+};
+// Get the precipitation unit based on the user's settings
+const getPrecipitationUnit = (precip: number, unit: "mm" | "in") => {
+  if (unit === "mm") {
+    return Math.round(precip) + " mm";
+  } else {
+    return Math.round(precip / 25.4) + " in";
+  }
+};
+// Get the wind direction based on the user's settings
+const getWindDirection = (deg: number) => {
+  if (deg >= 0 && deg < 45) return "N";
+  if (deg >= 45 && deg < 135) return "E";
+  if (deg >= 135 && deg < 225) return "S";
+  if (deg >= 225 && deg < 315) return "W";
+  return "N";
+};
+
+export default function App() {
+  return (
+    <SettingsProvider>
+      <WeatherApp />
+    </SettingsProvider>
+  );
+}
+
+export function WeatherApp() {
   const [city, setCity] = useState("London");
   const [searchQuery, setSearchQuery] = useState("");
   const [isDay, setIsDay] = useState(true);
+
+  const { tempUnit, timeFormat, windUnit } = useSettings();
 
   useEffect(() => {
     handleSearch(null);
@@ -150,7 +193,7 @@ export default function WeatherApp() {
     return new Date(timestamp * 1000).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: true,
+      hour12: timeFormat === "12h",
     });
   };
 
@@ -196,274 +239,283 @@ export default function WeatherApp() {
     );
 
   return (
-    <SettingsProvider>
-      <div
-        className={cn(
-          "min-h-screen transition-colors duration-700 ease-in-out p-4 flex flex-col items-center",
-          weather
-            ? getBackgroundColor(weather.weather[0].main, isDay)
-            : "bg-background"
-        )}
-      >
-        <div className="w-full max-w-3xl mx-auto">
-          {/* Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-6"
-          >
-            <form onSubmit={handleSearch} className="flex gap-2">
-              <CityCombobox
-                placeholder="Search for a city..."
-                value={searchQuery}
-                onChange={setSearchQuery}
-                className="!bg-background flex-1"
-              />
-              {/* Refresh Button */}
-              <motion.div
-                className="flex justify-center"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    mutate();
-                    const icon = document.getElementById("refresh-icon");
-                    if (icon) {
-                      icon.style.transition = "transform 0.5s ease";
-                      icon.style.transform = "rotate(360deg)";
-                      setTimeout(() => {
-                        icon.style.transform = "rotate(0deg)";
-                      }, 500);
-                    }
-                  }}
-                  className="!bg-background hover:!bg-muted"
-                  disabled={isLoading}
-                >
-                  {isLoading ? <Loader2 className="animate-spin" /> : null}
-                  <RefreshCcw id="refresh-icon" className="size-5" />
-                </Button>
-              </motion.div>
-              <SettingsDropdown />
-            </form>
-          </motion.div>
-
-          {/* Main Weather Card */}
-          <AnimatePresence mode="wait">
+    <div
+      className={cn(
+        "min-h-screen transition-colors duration-700 ease-in-out p-4 flex flex-col items-center",
+        weather
+          ? getBackgroundColor(weather.weather[0].main, isDay)
+          : "bg-background"
+      )}
+    >
+      <div className="w-full max-w-3xl mx-auto">
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6"
+        >
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <CityCombobox
+              placeholder="Search for a city..."
+              value={searchQuery}
+              onChange={setSearchQuery}
+              className="!bg-background flex-1"
+            />
+            {/* Refresh Button */}
             <motion.div
-              key={city}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.5 }}
+              className="flex justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
             >
-              <Card
-                // className=" !bg-gray-900 !bg-clip-padding !backdrop-filter !backdrop-blur-md !bg-opacity-10 !border border-gray-100"
-                className="bg-background backdrop-blur-sm border-0 shadow-lg overflow-hidden"
+              <Button
+                variant="outline"
+                onClick={() => {
+                  mutate();
+                  const icon = document.getElementById("refresh-icon");
+                  if (icon) {
+                    icon.style.transition = "transform 0.5s ease";
+                    icon.style.transform = "rotate(360deg)";
+                    setTimeout(() => {
+                      icon.style.transform = "rotate(0deg)";
+                    }, 500);
+                  }
+                }}
+                className="!bg-background hover:!bg-muted"
+                disabled={isLoading}
               >
-                <CardContent className="p-6">
-                  {isLoading ? (
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <Skeleton className="h-10 w-40" />
-                        <Skeleton className="h-10 w-20" />
+                {isLoading ? <Loader2 className="animate-spin" /> : null}
+                <RefreshCcw id="refresh-icon" className="size-5" />
+              </Button>
+            </motion.div>
+            <SettingsDropdown />
+          </form>
+        </motion.div>
+
+        {/* Main Weather Card */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={city}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card
+              // className=" !bg-gray-900 !bg-clip-padding !backdrop-filter !backdrop-blur-md !bg-opacity-10 !border border-gray-100"
+              className="bg-background backdrop-blur-sm border-0 shadow-lg overflow-hidden"
+            >
+              <CardContent className="p-6">
+                {isLoading ? (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <Skeleton className="h-10 w-40" />
+                      <Skeleton className="h-10 w-20" />
+                    </div>
+                    <div className="flex justify-center">
+                      <Skeleton className="h-32 w-32 rounded-full" />
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                  </div>
+                ) : weather ? (
+                  <>
+                    <div className="flex justify-between items-start mb-6">
+                      <div>
+                        <h1 className="text-2xl font-bold flex items-center">
+                          {/* <MapPin className="h-5 w-5 mr-1 text-muted-foreground" /> */}
+                          <motion.img
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                            width={40}
+                            height={32}
+                            src={`https://flagcdn.com/160x120/${weather.sys.country.toLowerCase()}.png`}
+                            alt={`${weather.name} flag`}
+                            className="mx-2 h-8 w-10"
+                          ></motion.img>
+                          {weather.name}, {weather.sys.country}
+                        </h1>
+                        <p className="text-muted-foreground mt-1">
+                          {new Date().toLocaleDateString([], {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </p>
                       </div>
-                      <div className="flex justify-center">
-                        <Skeleton className="h-32 w-32 rounded-full" />
-                      </div>
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-full" />
-                        <Skeleton className="h-4 w-3/4" />
+                      <div className="text-right">
+                        <div
+                          className={cn(
+                            "text-4xl font-bold",
+                            getTempColor(weather.main.temp)
+                          )}
+                        >
+                          {getTempUnit(weather.main.temp, tempUnit)}
+                        </div>
+                        <div className="text-muted-foreground text-sm">
+                          Feels like{" "}
+                          {getTempUnit(weather.main.feels_like, tempUnit)}
+                        </div>
                       </div>
                     </div>
-                  ) : weather ? (
-                    <>
-                      <div className="flex justify-between items-start mb-6">
-                        <div>
-                          <h1 className="text-2xl font-bold flex items-center">
-                            <MapPin className="h-5 w-5 mr-1 text-muted-foreground" />
-                            {weather.name}, {weather.sys.country}
-                          </h1>
-                          <p className="text-muted-foreground mt-1">
-                            {new Date().toLocaleDateString([], {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div
-                            className={cn(
-                              "text-4xl font-bold",
-                              getTempColor(weather.main.temp)
-                            )}
-                          >
-                            {Math.round(weather.main.temp)}°C
-                          </div>
-                          <div className="text-muted-foreground text-sm">
-                            Feels like {Math.round(weather.main.feels_like)}°C
-                          </div>
-                        </div>
-                      </div>
 
-                      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
-                        <motion.div
-                          className="flex flex-col items-center"
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.2, duration: 0.5 }}
-                        >
-                          <motion.img
-                            src={getWeatherIcon(weather.weather[0].main)}
-                            alt={weather.weather[0].description}
-                            className="h-32 w-32"
-                            animate={{
-                              y: [0, -10, 0],
-                              scale: [1, 1.05, 1],
-                            }}
-                            transition={{
-                              repeat: Number.POSITIVE_INFINITY,
-                              duration: 5,
-                              ease: "easeInOut",
-                            }}
-                          />
-                          <h2 className="text-xl font-medium capitalize mt-2">
-                            {weather.weather[0].description}
-                          </h2>
-                        </motion.div>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
+                      <motion.div
+                        className="flex flex-col items-center"
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                      >
+                        <motion.img
+                          src={getWeatherIcon(weather.weather[0].main)}
+                          alt={weather.weather[0].description}
+                          className="h-32 w-32"
+                          animate={{
+                            y: [0, -10, 0],
+                            scale: [1, 1.05, 1],
+                          }}
+                          transition={{
+                            repeat: Number.POSITIVE_INFINITY,
+                            duration: 5,
+                            ease: "easeInOut",
+                          }}
+                        />
+                        <h2 className="text-xl font-medium capitalize mt-2">
+                          {weather.weather[0].description}
+                        </h2>
+                      </motion.div>
 
-                        <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
-                          <div className="flex items-center gap-2">
-                            <Droplets className="h-5 w-5 text-primary" />
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Humidity
-                              </div>
-                              <div className="font-medium">
-                                {weather.main.humidity}%
-                              </div>
+                      <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
+                        <div className="flex items-center gap-2">
+                          <Droplets className="h-5 w-5 text-primary" />
+                          <div>
+                            <div className="text-sm text-muted-foreground">
+                              Humidity
+                            </div>
+                            <div className="font-medium">
+                              {weather.main.humidity}%
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Wind className="h-5 w-5 text-muted-foreground" />
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Wind
-                              </div>
-                              <div className="font-medium">
-                                {Math.round(weather.wind.speed * 3.6)} km/h
-                              </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Wind className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <div className="text-sm text-muted-foreground">
+                              Wind
+                            </div>
+                            <div className="font-medium">
+                              {getWindUnit(weather.wind.speed, windUnit)}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Sunrise className="h-5 w-5 text-primary" />
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Sunrise
-                              </div>
-                              <div className="font-medium">
-                                {formatTime(weather.sys.sunrise)}
-                              </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Sunrise className="h-5 w-5 text-primary" />
+                          <div>
+                            <div className="text-sm text-muted-foreground">
+                              Sunrise
+                            </div>
+                            <div className="font-medium">
+                              {formatTime(weather.sys.sunrise)}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Sunset className="h-5 w-5 text-secondary" />
-                            <div>
-                              <div className="text-sm text-muted-foreground">
-                                Sunset
-                              </div>
-                              <div className="font-medium">
-                                {formatTime(weather.sys.sunset)}
-                              </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Sunset className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <div className="text-sm text-muted-foreground">
+                              Sunset
+                            </div>
+                            <div className="font-medium">
+                              {formatTime(weather.sys.sunset)}
                             </div>
                           </div>
                         </div>
                       </div>
+                    </div>
 
-                      {/* Forecast */}
-                      {forecast && (
-                        <div className="mt-6">
-                          <h3 className="font-medium mb-3">5-Day Forecast</h3>
-                          <div className="grid grid-cols-5 gap-2">
-                            {forecast.list
-                              .filter(
-                                (
-                                  _: {
-                                    dt: number;
-                                    main: { temp: number };
-                                    weather: {
-                                      main: string;
-                                      description: string;
-                                    }[];
-                                  },
-                                  index: number
-                                ) => index % 8 === 0
-                              )
-                              .slice(0, 5)
-                              .map(
-                                (
-                                  item: {
-                                    dt: number;
-                                    main: { temp: number };
-                                    weather: {
-                                      main: string;
-                                      description: string;
-                                    }[];
-                                  },
-                                  index: number
-                                ) => (
-                                  <motion.div
-                                    key={index}
+                    {/* Forecast */}
+                    {forecast && (
+                      <div className="mt-6">
+                        <h3 className="font-medium mb-3">5-Day Forecast</h3>
+                        <div className="grid grid-cols-5 gap-2">
+                          {forecast.list
+                            .filter(
+                              (
+                                _: {
+                                  dt: number;
+                                  main: { temp: number };
+                                  weather: {
+                                    main: string;
+                                    description: string;
+                                  }[];
+                                },
+                                index: number
+                              ) => index % 8 === 0
+                            )
+                            .slice(0, 5)
+                            .map(
+                              (
+                                item: {
+                                  dt: number;
+                                  main: { temp: number };
+                                  weather: {
+                                    main: string;
+                                    description: string;
+                                  }[];
+                                },
+                                index: number
+                              ) => (
+                                <motion.div
+                                  key={index}
+                                  className={cn(
+                                    "flex flex-col items-center p-2 rounded-lg hover:bg-muted transition-colors",
+                                    index === 0 ? "bg-muted" : "bg-background"
+                                  )}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{
+                                    delay: index * 0.1,
+                                    duration: 0.5,
+                                  }}
+                                >
+                                  <div className="text-sm font-medium">
+                                    {formatDay(item.dt)}
+                                  </div>
+                                  <Image
+                                    src={
+                                      getWeatherIcon(item.weather[0].main) ||
+                                      "/placeholder.svg"
+                                    }
+                                    alt={item.weather[0].description}
+                                    className="h-10 w-10 my-1"
+                                    width={40}
+                                    height={40}
+                                  />
+                                  <div
                                     className={cn(
-                                      "flex flex-col items-center p-2 rounded-lg hover:bg-muted transition-colors",
-                                      index === 0 ? "bg-muted" : "bg-background"
+                                      "text-sm font-medium",
+                                      getTempColor(item.main.temp)
                                     )}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                      delay: index * 0.1,
-                                      duration: 0.5,
-                                    }}
                                   >
-                                    <div className="text-sm font-medium">
-                                      {formatDay(item.dt)}
-                                    </div>
-                                    <Image
-                                      src={
-                                        getWeatherIcon(item.weather[0].main) ||
-                                        "/placeholder.svg"
-                                      }
-                                      alt={item.weather[0].description}
-                                      className="h-10 w-10 my-1"
-                                      width={40}
-                                      height={40}
-                                    />
-                                    <div
-                                      className={cn(
-                                        "text-sm font-medium",
-                                        getTempColor(item.main.temp)
-                                      )}
-                                    >
-                                      {Math.round(item.main.temp)}°C
-                                    </div>
-                                  </motion.div>
-                                )
-                              )}
-                          </div>
+                                    {getTempUnit(item.main.temp, tempUnit)}
+                                  </div>
+                                </motion.div>
+                              )
+                            )}
                         </div>
-                      )}
-                    </>
-                  ) : null}
-                </CardContent>
-              </Card>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+                      </div>
+                    )}
+                  </>
+                ) : null}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </AnimatePresence>
       </div>
-    </SettingsProvider>
+    </div>
   );
 }

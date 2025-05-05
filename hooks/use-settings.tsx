@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useTheme } from "next-themes";
 type SettingsContextType = {
@@ -9,8 +11,6 @@ type SettingsContextType = {
   setTimeFormat: (value: "12h" | "24h") => void;
   windUnit: "mph" | "kph" | "ms";
   setWindUnit: (value: "mph" | "kph" | "ms") => void;
-  precipUnit: "mm" | "in";
-  setPrecipUnit: (value: "mm" | "in") => void;
   showHumidity: boolean;
   setShowHumidity: (value: boolean) => void;
   showWindDirection: boolean;
@@ -30,9 +30,8 @@ const SettingsContext = createContext<SettingsContextType | undefined>(
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const { theme, setTheme } = useTheme();
   const [tempUnit, setTempUnit] = useState<"c" | "f">("c");
-  const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("24h");
+  const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("12h");
   const [windUnit, setWindUnit] = useState<"mph" | "kph" | "ms">("kph");
-  const [precipUnit, setPrecipUnit] = useState<"mm" | "in">("mm");
   const [showHumidity, setShowHumidity] = useState(true);
   const [showWindDirection, setShowWindDirection] = useState(true);
   const [showPrecipitation, setShowPrecipitation] = useState(true);
@@ -50,8 +49,6 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         setTimeFormat,
         windUnit,
         setWindUnit,
-        precipUnit,
-        setPrecipUnit,
         showHumidity,
         setShowHumidity,
         showWindDirection,

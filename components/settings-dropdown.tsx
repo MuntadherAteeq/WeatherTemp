@@ -37,18 +37,6 @@ export function SettingsDropdown() {
   // State for dropdown open status
   const [open, setOpen] = useState(false);
 
-  // State for various settings
-  //   const [theme, setTheme] = useState<"light" | "dark">("light");
-  //   const [tempUnit, setTempUnit] = useState<"celsius" | "fahrenheit">("celsius");
-  //   const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("24h");
-  //   const [windUnit, setWindUnit] = useState<"mph" | "kph" | "ms">("kph");
-  //   const [precipUnit, setPrecipUnit] = useState<"mm" | "in">("mm");
-  //   const [showHumidity, setShowHumidity] = useState(true);
-  //   const [showWindDirection, setShowWindDirection] = useState(true);
-  //   const [showPrecipitation, setShowPrecipitation] = useState(true);
-  //   const [showFeelsLike, setShowFeelsLike] = useState(true);
-  //   const [locationTracking, setLocationTracking] = useState(false);
-
   const {
     theme,
     setTheme,
@@ -58,8 +46,6 @@ export function SettingsDropdown() {
     setTimeFormat,
     windUnit,
     setWindUnit,
-    precipUnit,
-    setPrecipUnit,
     showHumidity,
     setShowHumidity,
     showWindDirection,
@@ -226,37 +212,6 @@ export function SettingsDropdown() {
                   >
                     <span className="max-sm:hidden">Meters per second </span>{" "}
                     (m/s)
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-
-          {/* Precipitation Unit */}
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <div className="flex items-center gap-2">
-                <CloudRain className="h-4 w-4" />
-                <span>Precipitation</span>
-              </div>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup
-                  value={precipUnit}
-                  onValueChange={(value) => setPrecipUnit(value as "mm" | "in")}
-                >
-                  <DropdownMenuRadioItem
-                    value="mm"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Millimeters (mm)
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem
-                    value="in"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Inches (in)
                   </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
