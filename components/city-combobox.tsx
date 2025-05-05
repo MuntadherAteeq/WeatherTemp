@@ -262,7 +262,7 @@ export const cities = [
   },
   {
     id: "bahrain",
-    name: "Manama-fdgdfg",
+    name: "Manama",
     country: "Bahrain",
     countryCode: "BH",
   },
