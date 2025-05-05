@@ -31,22 +31,46 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
+import { useSettings } from "@/hooks/use-settings";
 
 export function SettingsDropdown() {
   // State for dropdown open status
   const [open, setOpen] = useState(false);
 
   // State for various settings
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [tempUnit, setTempUnit] = useState<"celsius" | "fahrenheit">("celsius");
-  const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("24h");
-  const [windUnit, setWindUnit] = useState<"mph" | "kph" | "ms">("kph");
-  const [precipUnit, setPrecipUnit] = useState<"mm" | "in">("mm");
-  const [showHumidity, setShowHumidity] = useState(true);
-  const [showWindDirection, setShowWindDirection] = useState(true);
-  const [showPrecipitation, setShowPrecipitation] = useState(true);
-  const [showFeelsLike, setShowFeelsLike] = useState(true);
-  const [locationTracking, setLocationTracking] = useState(false);
+  //   const [theme, setTheme] = useState<"light" | "dark">("light");
+  //   const [tempUnit, setTempUnit] = useState<"celsius" | "fahrenheit">("celsius");
+  //   const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("24h");
+  //   const [windUnit, setWindUnit] = useState<"mph" | "kph" | "ms">("kph");
+  //   const [precipUnit, setPrecipUnit] = useState<"mm" | "in">("mm");
+  //   const [showHumidity, setShowHumidity] = useState(true);
+  //   const [showWindDirection, setShowWindDirection] = useState(true);
+  //   const [showPrecipitation, setShowPrecipitation] = useState(true);
+  //   const [showFeelsLike, setShowFeelsLike] = useState(true);
+  //   const [locationTracking, setLocationTracking] = useState(false);
+
+  const {
+    theme,
+    setTheme,
+    tempUnit,
+    setTempUnit,
+    timeFormat,
+    setTimeFormat,
+    windUnit,
+    setWindUnit,
+    precipUnit,
+    setPrecipUnit,
+    showHumidity,
+    setShowHumidity,
+    showWindDirection,
+    setShowWindDirection,
+    showPrecipitation,
+    setShowPrecipitation,
+    showFeelsLike,
+    setShowFeelsLike,
+    locationTracking,
+    setLocationTracking,
+  } = useSettings();
 
   // Toggle theme function (in a real app, this would update the actual theme)
   const toggleTheme = () => {
@@ -115,18 +139,16 @@ export function SettingsDropdown() {
               <DropdownMenuSubContent>
                 <DropdownMenuRadioGroup
                   value={tempUnit}
-                  onValueChange={(value) =>
-                    setTempUnit(value as "celsius" | "fahrenheit")
-                  }
+                  onValueChange={(value) => setTempUnit(value as "c" | "f")}
                 >
                   <DropdownMenuRadioItem
-                    value="celsius"
+                    value="c"
                     onClick={(e) => e.stopPropagation()}
                   >
                     Celsius (°C)
                   </DropdownMenuRadioItem>
                   <DropdownMenuRadioItem
-                    value="fahrenheit"
+                    value="f"
                     onClick={(e) => e.stopPropagation()}
                   >
                     Fahrenheit (°F)
