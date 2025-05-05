@@ -179,16 +179,12 @@ export default function WeatherApp() {
                 Please try again with a different city name
               </p>
               <form onSubmit={handleSearch} className="mt-4 flex gap-2">
-                <Input
-                  placeholder="Enter city name"
+                <CityCombobox
+                  placeholder="Search for a city..."
                   value={searchQuery}
-                  onChange={
-                    (e) => console.log(e)
-                    // setSearchQuery(e.target.value)
-                  }
-                  className="flex-1"
+                  onChange={setSearchQuery}
+                  className="!bg-background border-0 flex-1"
                 />
-                <Button type="submit">Search</Button>
               </form>
             </div>
           </CardContent>
@@ -391,7 +387,10 @@ export default function WeatherApp() {
                               ) => (
                                 <motion.div
                                   key={index}
-                                  className="flex flex-col items-center p-2 rounded-lg hover:bg-muted transition-colors"
+                                  className={cn(
+                                    "flex flex-col items-center p-2 rounded-lg hover:bg-muted transition-colors",
+                                    index === 0 ? "bg-muted" : "bg-background"
+                                  )}
                                   initial={{ opacity: 0, y: 20 }}
                                   animate={{ opacity: 1, y: 0 }}
                                   transition={{
