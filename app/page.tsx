@@ -5,15 +5,12 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search,
-  MapPin,
   Droplets,
   Wind,
   Sunrise,
   Sunset,
   Loader2,
   RefreshCcw,
-  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -124,16 +121,8 @@ const getPrecipitationUnit = (precip: number, unit: "mm" | "in") => {
     return Math.round(precip / 25.4) + " in";
   }
 };
-// Get the wind direction based on the user's settings
-const getWindDirection = (deg: number) => {
-  if (deg >= 0 && deg < 45) return "N";
-  if (deg >= 45 && deg < 135) return "E";
-  if (deg >= 135 && deg < 225) return "S";
-  if (deg >= 225 && deg < 315) return "W";
-  return "N";
-};
 
-export default function App() {
+export default function App(props: any) {
   return (
     <SettingsProvider>
       <WeatherApp />
@@ -141,7 +130,7 @@ export default function App() {
   );
 }
 
-export function WeatherApp() {
+function WeatherApp(props: any) {
   const [city, setCity] = useState("London");
   const [searchQuery, setSearchQuery] = useState("");
   const [isDay, setIsDay] = useState(true);
