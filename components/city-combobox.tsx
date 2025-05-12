@@ -609,12 +609,6 @@ export const cities = [
     countryCode: "IQ",
   },
   {
-    id: "israel",
-    name: "Jerusalem",
-    country: "Israel",
-    countryCode: "IL",
-  },
-  {
     id: "jamaica",
     name: "Kingston",
     country: "Jamaica",
